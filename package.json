@@ -1,0 +1,38 @@
+{
+  "name": "haruka",
+  "version": "0.0.1",
+  "description": "scraping web scraping tool for management media release date",
+  "main": "lib/index.js",
+  "scripts": {
+    "start": "node lib/index.js",
+    "deploy": "gcloud app deploy",
+    "test": "npm run build && mocha --timeout 10000 --reporter spec"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/Mitu217/ortensia.git"
+  },
+  "author": "Mitu217",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Mitu217/ortensia/issues"
+  },
+  "homepage": "https://github.com/Mitu217/ortensia#readme",
+  "dependencies": {
+    "cheerio-httpcli": "^0.7.3",
+    "cors": "^2.8.4",
+    "express": "^4.16.3"
+  },
+  "devDependencies": {
+    "@types/express": "^4.16.0",
+    "chai": "^4.1.2",
+    "mocha": "^5.2.0",
+    "node-mocks-http": "^1.7.0",
+    "proxyquire": "^2.0.1",
+    "sinon": "^6.1.4",
+    "sinon-chai": "^3.2.0",
+    "tslint": "^5.11.0",
+    "typescript": "^2.9.2"
+  },
+  "private": true
+}
