@@ -16,8 +16,20 @@ const animateOnlineShopUrl        = 'https://www.animate-onlineshop.jp/calendar/
 const countPerPage   = 200;
 
 export const scraping = async () => {
-    const releaseItems = await fetchMusicReleaseItems(2018, 8);
-    return releaseItems
+    const date = new Date();
+    let year = date.getFullYear();
+    let month = date.getMonth() + 1;
+    for(var i=0; i<12; i++) {
+        const releaseItems = await fetchMusicReleaseItems(year, month);
+        const path = `${year}_${month}.json`;
+        await writeFile(path, releaseItems);
+        // move next month
+        month++;
+        if (month > 12) {
+            month = 1;
+            year++;
+        }
+    }
 }
 
 const fetchMusicReleaseItems = async (year: number, month: number) => {
@@ -38,7 +50,7 @@ const fetchAnimateReleaseItems = async (category: number, year: number, month: n
         throw fetchResult.error;
     }
 
-    // Get ReleaseItems
+    // get ReleaseItems
     let releaseItems: object[] = [];
     const $ = fetchResult.$;
     const tableElement = $(".calender_list_table > table > tbody > tr");
@@ -51,12 +63,21 @@ const fetchAnimateReleaseItems = async (category: number, year: number, month: n
             switch (child.attribs.class) {
                 case "date":
                 let date: (number|string)[] = [];
-                const matches = $(child).text().match(/(\d+)(年)(\d+)(月)(\d+)(日)/);
-                if (matches) {
-                    date = matches.slice(1).map((elm: number|string) => {
+                const fullMatches = $(child).text().match(/(\d+)(年)(\d+)(月)(\d+)(日)/);
+                if (fullMatches) {
+                    date = fullMatches.slice(1).map((elm: number|string) => {
                         return (elm < 10) ? ('0'+elm).slice(-2) : elm;
                     });
                     date = [date[0], date[2], date[4]];
+                } else {
+                    const partMatches = $(child).text().match(/(\d+)(年)(\d+)(月)(\s+)(\S+)/);
+                    if (partMatches) {
+                        console.log(partMatches);
+                        date = partMatches.slice(1).map((elm: number|string) => {
+                            return (elm < 10) ? ('0'+elm).slice(-2) : elm;
+                        });
+                        date = [date[0], date[2], date[5]];
+                    }
                 }
                 releaseItem[child.attribs.class] = date.join("-");
                 break;
@@ -74,10 +95,10 @@ const fetchAnimateReleaseItems = async (category: number, year: number, month: n
         releaseItems.push(releaseItem);
     });
 
-    // Check Paging
+    // check paging
     const pagingElements = $("div[class='content_pager'] > div");
+    let maxPageNo = 1;
     pagingElements.map(async (i: number, element: CheerioElement) => {
-        let maxPageNo = 1;
         element.children.forEach((child: CheerioElement) => {
             const pageLinkText = $(child).text();
             if (pageLinkText == "<<前へ" || pageLinkText == "次へ>>") {
@@ -87,11 +108,12 @@ const fetchAnimateReleaseItems = async (category: number, year: number, month: n
                 maxPageNo = parseInt(pageLinkText)
             }
         });
-        if (maxPageNo != pageNo) {
-            const nextPageReleaseItems = await fetchAnimateReleaseItems(category, year, month, pageNo+1);
-            releaseItems = [ ...releaseItems, ...nextPageReleaseItems];
-        }
     });
+    if (maxPageNo != pageNo) {
+        const nextPageReleaseItems = await fetchAnimateReleaseItems(category, year, month, pageNo+1);
+        releaseItems = [ ...releaseItems, ...nextPageReleaseItems];
+    }
+
     return releaseItems;
 }
 
