@@ -1,4 +1,5 @@
 import { fetch } from 'cheerio-httpcli';
+import * as fs from 'fs';
 
 // -------------------
 // animate online shop
@@ -92,4 +93,12 @@ const fetchAnimateReleaseItems = async (category: number, year: number, month: n
         }
     });
     return releaseItems;
+}
+
+const writeFile = async (path: string, data: any) => {
+    await fs.writeFile(path, JSON.stringify(data), (err) => {
+        if (err) {
+            throw err
+        }
+    });
 }
