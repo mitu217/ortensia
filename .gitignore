@@ -1,4 +1,7 @@
 .DS_Store
+.gcloudignore
+
+app.yaml
 
 lib/
 node_modules/
