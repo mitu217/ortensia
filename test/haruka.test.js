@@ -5,12 +5,12 @@ const chai       = require('chai');
 const sinonChai = require('sinon-chai');
 
 describe('Firebase Functions', () => {
-    let triggers, sandbox, expect;
+    let haruka, sandbox, expect;
 
     before(() => {
-        triggers      = proxyquire('../lib/triggers', {});
-        sandbox       = sinon.createSandbox();
-        expect        = chai.use(sinonChai).expect
+        haruka  = proxyquire('../lib/haruka', {});
+        sandbox = sinon.createSandbox();
+        expect  = chai.use(sinonChai).expect
     });
 
     beforeEach(() => {
@@ -24,7 +24,7 @@ describe('Firebase Functions', () => {
                 url: `/haruka`
             });
             var response = httpMocks.createResponse();
-            triggers.scraping(request, response);
+            haruka.fetchAction(request, response);
             expect(response.statusCode).to.equal(200);
         })
     });
