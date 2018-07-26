@@ -22,12 +22,10 @@ export const fetchAction = async (request: any, response: any) => {
     const path = getPath(year, month);
     // read cache
     const cache = await readFile(path).catch(async () => {
-        if (year < (new Date()).getFullYear()) return "[]";
-        const releaseItems = await fetchMusicReleaseItems(year, month);
-        await writeFile(path, releaseItems);
-        return JSON.stringify(releaseItems);
+        await fetchReleaseItems(year, month)
+        return await readFile(path)
     });
-    return response.json({ result: JSON.parse(cache) });
+    return response.json({ result: JSON.parse(cache) })
 };
 
 export const scraping = async () => {
@@ -35,9 +33,7 @@ export const scraping = async () => {
     let year = date.getFullYear();
     let month = date.getMonth() + 1;
     for(var i=0; i<12; i++) {
-        const releaseItems = await fetchMusicReleaseItems(year, month);
-        const path = getPath(year, month);
-        await writeFile(path, releaseItems);
+        await fetchReleaseItems(year, month)
         // move next month
         month++;
         if (month > 12) {
@@ -45,6 +41,12 @@ export const scraping = async () => {
             year++;
         }
     }
+}
+
+const fetchReleaseItems = async (year: number, month: number) => {
+    const releaseItems = await fetchMusicReleaseItems(year, month);
+    const path = getPath(year, month);
+    await writeFile(path, releaseItems);
 }
 
 const fetchMusicReleaseItems = async (year: number, month: number) => {
@@ -65,8 +67,13 @@ const fetchAnimateReleaseItems = async (category: number, year: number, month: n
         throw fetchResult.error;
     }
 
-    // get ReleaseItems
+    // check year
     let releaseItems: any[] = [];
+    if (year < (new Date()).getFullYear()) {
+        return releaseItems;
+    }
+
+    // get ReleaseItems
     const $ = fetchResult.$;
     const tableElement = $(".calender_list_table > table > tbody > tr");
     tableElement.each((i: number, element: CheerioElement) => {
