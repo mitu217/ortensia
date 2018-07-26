@@ -13,10 +13,14 @@ const ANIMATE_CATEGORY_FIGURE = 5;
 const ANIMATE_CATEGORY_GAME   = 6;
 const ANIMATE_CATEGORY_TICKET = 7;
 
-const animateOnlineShopUrl        = 'https://www.animate-onlineshop.jp/calendar/';
+const animateOnlineShopUrl    = 'https://www.animate-onlineshop.jp/calendar/';
 const countPerPage   = 200;
 
 export const fetchAction = async (request: any, response: any) => {
+    if (!request.params.year || !request.params.month) {
+        response.statusCode = 500;
+        return response.json({});
+    }
     const year = request.params.year;
     const month = request.params.month;
     const path = getPath(year, month);
@@ -140,7 +144,7 @@ const fetchAnimateReleaseItems = async (category: number, year: number, month: n
     return releaseItems;
 }
 
-const getPath = (year: number, month: number) => {
+export const getPath = (year: number, month: number) => {
     return `${year}_${month}.json`;
 }
 
@@ -153,7 +157,7 @@ const readFile = async (path: string) => {
 }
 
 const writeFile = async (path: string, data: any) => {
-    await fs.writeFile(path, JSON.stringify(data), (err) => {
+    await util.promisify(fs.writeFile)(path, JSON.stringify(data)).then((err) => {
         if (err) throw err;
     });
 }
