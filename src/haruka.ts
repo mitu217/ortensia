@@ -1,5 +1,6 @@
 import { fetch } from 'cheerio-httpcli';
 import * as fs from 'fs';
+import * as util from 'util';
 
 // -------------------
 // animate online shop
@@ -15,13 +16,27 @@ const ANIMATE_CATEGORY_TICKET = 7;
 const animateOnlineShopUrl        = 'https://www.animate-onlineshop.jp/calendar/';
 const countPerPage   = 200;
 
+export const fetchAction = async (request: any, response: any) => {
+    const year = request.params.year;
+    const month = request.params.month;
+    const path = getPath(year, month);
+    // read cache
+    const cache = await readFile(path).catch(async () => {
+        if (year < (new Date()).getFullYear()) return "[]";
+        const releaseItems = await fetchMusicReleaseItems(year, month);
+        await writeFile(path, releaseItems);
+        return JSON.stringify(releaseItems);
+    });
+    return response.json({ result: JSON.parse(cache) });
+};
+
 export const scraping = async () => {
     const date = new Date();
     let year = date.getFullYear();
     let month = date.getMonth() + 1;
     for(var i=0; i<12; i++) {
         const releaseItems = await fetchMusicReleaseItems(year, month);
-        const path = `${year}_${month}.json`;
+        const path = getPath(year, month);
         await writeFile(path, releaseItems);
         // move next month
         month++;
@@ -51,7 +66,7 @@ const fetchAnimateReleaseItems = async (category: number, year: number, month: n
     }
 
     // get ReleaseItems
-    let releaseItems: object[] = [];
+    let releaseItems: any[] = [];
     const $ = fetchResult.$;
     const tableElement = $(".calender_list_table > table > tbody > tr");
     tableElement.each((i: number, element: CheerioElement) => {
@@ -72,7 +87,6 @@ const fetchAnimateReleaseItems = async (category: number, year: number, month: n
                 } else {
                     const partMatches = $(child).text().match(/(\d+)(年)(\d+)(月)(\s+)(\S+)/);
                     if (partMatches) {
-                        console.log(partMatches);
                         date = partMatches.slice(1).map((elm: number|string) => {
                             return (elm < 10) ? ('0'+elm).slice(-2) : elm;
                         });
@@ -92,7 +106,9 @@ const fetchAnimateReleaseItems = async (category: number, year: number, month: n
                 break;
             }
         });
-        releaseItems.push(releaseItem);
+        if (Object.keys(releaseItem).length > 0) {
+            releaseItems.push(releaseItem);
+        }
     });
 
     // check paging
@@ -117,10 +133,20 @@ const fetchAnimateReleaseItems = async (category: number, year: number, month: n
     return releaseItems;
 }
 
+const getPath = (year: number, month: number) => {
+    return `${year}_${month}.json`;
+}
+
+const readFile = async (path: string) => {
+    let result = "";
+    await util.promisify(fs.readFile)(path, "utf8").then((data) => {
+        result = data;
+    });
+    return result;
+}
+
 const writeFile = async (path: string, data: any) => {
     await fs.writeFile(path, JSON.stringify(data), (err) => {
-        if (err) {
-            throw err
-        }
+        if (err) throw err;
     });
 }
