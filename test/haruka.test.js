@@ -14,14 +14,9 @@ describe('Firebase Functions', () => {
     const month = date.getMonth()+1;
 
     before(() => {
-        haruka  = proxyquire('../lib/haruka', {});
+        haruka  = proxyquire('../build/api/haruka', {});
         sandbox = sinon.createSandbox();
         expect  = chai.use(sinonChai).expect;
-    });
-
-    after(() => {
-        path = haruka.getPath(year, month);
-        fs.unlinkSync(path);
     });
 
     beforeEach(() => {

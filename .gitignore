@@ -3,6 +3,7 @@
 
 .nuxt/
 build/
+cache/
 node_modules/
 
 app.yaml

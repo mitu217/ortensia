@@ -1,6 +1,8 @@
 import { fetch } from 'cheerio-httpcli';
 import { CronJob } from 'cron';
 import * as fs from 'fs';
+import { dirname as getDirName } from 'path';
+import * as mkdirp from 'mkdirp';
 import * as util from 'util';
 
 // -------------------
@@ -19,7 +21,7 @@ const countPerPage   = 200;
 
 // setup cron job
 const job = new CronJob('0 */5 * * * *', () => {
-    //scraping()
+    scraping()
 });
 job.start();
 
@@ -152,7 +154,7 @@ const fetchAnimateReleaseItems = async (category: number, year: number, month: n
 }
 
 export const getPath = (year: number, month: number) => {
-    return `${year}_${month}.json`;
+    return `cache/${year}_${month}.json`;
 }
 
 const readFile = async (path: string) => {
@@ -164,6 +166,10 @@ const readFile = async (path: string) => {
 }
 
 const writeFile = async (path: string, data: any) => {
+    await util.promisify(mkdirp)(getDirName(path)).then((err) => {
+        console.log(err);
+        if (err) throw err;
+    });
     await util.promisify(fs.writeFile)(path, JSON.stringify(data)).then((err) => {
         if (err) throw err;
     });
