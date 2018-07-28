@@ -26,7 +26,6 @@ const job = new CronJob('0 */5 * * * *', () => {
 job.start();
 
 export const fetchAction = async (request: any, response: any) => {
-    console.log("test!");
     if (!request.params.year || !request.params.month) {
         return response.sendStatus(404)
     }
@@ -38,7 +37,7 @@ export const fetchAction = async (request: any, response: any) => {
         await fetchReleaseItems(year, month)
         return await readFile(path)
     });
-    return response.json({ result: JSON.parse(cache) })
+    return response.json(JSON.parse(cache))
 };
 
 export const scraping = async () => {
