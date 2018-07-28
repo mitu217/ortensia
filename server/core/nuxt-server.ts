@@ -13,7 +13,7 @@ export default class NuxtServer {
     protected constructor() {
         this._app = express();
         this._host = process.env.HOST || '127.0.0.1';
-        this._port = process.env.PORT || 3000;
+        this._port = process.env.PORT || 8080;
     }
 
     public static getInstance(): NuxtServer {
@@ -44,7 +44,7 @@ export default class NuxtServer {
 
         this._app.use(nuxt.render);
 
-        this._app.listen(this._port, this._host);
+        this._app.listen(this._port);
         return;
     }
 }
