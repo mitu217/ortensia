@@ -1,7 +1,7 @@
 import * as  express from 'express';
 import { Nuxt, Builder } from 'nuxt';
 
-import routes from './routes';
+import api from '../api';
 
 export default class NuxtServer {
     private static _instance: NuxtServer;
@@ -27,7 +27,7 @@ export default class NuxtServer {
         this._app.set('port', this._port);
 
         // import api routes
-        this._app.use('/api', routes);
+        this._app.use('/api', api);
 
         // import and seting nuxt.js options
         let config = require('../../nuxt.config');

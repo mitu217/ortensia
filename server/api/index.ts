@@ -1,11 +1,17 @@
 import { Router } from 'express';
-import { fetchAction } from './haruka';
-import users from './users'
+import * as fs from 'fs';
 
-const router = Router();
+const routers = Router();
 
-// setup routes
-router.use(users);
-//router.get('/haruka/:year/:month', fetchAction);
+// setup api routing
+(async function () {
+    const items = fs.readdirSync(__dirname);
+    await Promise.all(items.map(async item => {
+        if (fs.statSync(`${__dirname}/${item}`).isDirectory()) {
+            const router = await import(`./${item}`);
+            routers.use(`/${item}`, router.default);
+        }
+    })).catch(err => console.error(err));
+})();
 
-export default router;
+export default routers;

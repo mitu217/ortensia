@@ -26,9 +26,9 @@ const job = new CronJob('0 */5 * * * *', () => {
 job.start();
 
 export const fetchAction = async (request: any, response: any) => {
+    console.log("test!");
     if (!request.params.year || !request.params.month) {
-        response.statusCode = 500;
-        return response.json({});
+        return response.sendStatus(404)
     }
     const year = request.params.year;
     const month = request.params.month;
@@ -167,7 +167,6 @@ const readFile = async (path: string) => {
 
 const writeFile = async (path: string, data: any) => {
     await util.promisify(mkdirp)(getDirName(path)).then((err) => {
-        console.log(err);
         if (err) throw err;
     });
     await util.promisify(fs.writeFile)(path, JSON.stringify(data)).then((err) => {
