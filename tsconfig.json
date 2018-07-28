@@ -1,13 +1,32 @@
 {
     "compilerOptions": {
-        "target": "es6",
-        "module": "commonjs",
-        "outDir": "lib",
-        "noImplicitAny": true,
-        "strictNullChecks": true,
-        "sourceMap": true
+      "target": "es6",
+      "module": "commonjs",
+      "moduleResolution": "node",
+      "experimentalDecorators": true,
+      "noImplicitAny": false,
+      "noImplicitThis": false,
+      "strictNullChecks": true,
+      "removeComments": true,
+      "suppressImplicitAnyIndexErrors": true,
+      "allowSyntheticDefaultImports": true,
+      "allowJs": true,
+      "baseUrl": ".",
+      "outDir": "build",
+      "paths": {
+        "~/*" : ["./*"],
+        "~assets/*": ["./assets/*"],
+        "~components/*": ["./components/*"],
+        "~middleware/*": ["./middleware/*"],
+        "~modules/*": ["./modules/*"],
+        "~pages/*": ["./pages/*"],
+        "~plugins/*": ["./plugins/*"],
+        "~static/*": ["./static/*"],
+        "~store": ["./.nuxt/store"],
+        "~router": ["./.nuxt/router"]
+      }
     },
     "include": [
-        "src/**/*.ts"
+        "server/**/*.ts"
     ]
-}
+  }

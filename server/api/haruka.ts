@@ -1,4 +1,5 @@
 import { fetch } from 'cheerio-httpcli';
+import { CronJob } from 'cron';
 import * as fs from 'fs';
 import * as util from 'util';
 
@@ -15,6 +16,12 @@ const ANIMATE_CATEGORY_TICKET = 7;
 
 const animateOnlineShopUrl    = 'https://www.animate-onlineshop.jp/calendar/';
 const countPerPage   = 200;
+
+// setup cron job
+const job = new CronJob('0 */5 * * * *', () => {
+    //scraping()
+});
+job.start();
 
 export const fetchAction = async (request: any, response: any) => {
     if (!request.params.year || !request.params.month) {
