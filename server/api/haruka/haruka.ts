@@ -37,7 +37,7 @@ export const fetchAction = async (request: any, response: any) => {
         await fetchReleaseItems(year, month);
         return await readFile(path);
     });
-    return response.json(cache);
+    return response.json(JSON.parse(cache));
 };
 
 export const scraping = async () => {
