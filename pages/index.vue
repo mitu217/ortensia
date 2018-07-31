@@ -22,13 +22,12 @@
 </template>
 
 <script lang="ts">
-  import axios from '~/plugins/axios'
   export default {
-    async asyncData () {
+    async asyncData ({ app }) {
       const date = new Date()
       const year = date.getFullYear()
       const month = date.getMonth() + 1
-      let { data } = await axios.get(`/api/haruka/fetch/${year}/${month}`)
+      let data = await app.$axios.$get(`/api/haruka/fetch/${year}/${month}`)
       return { args: data }
     }
   }

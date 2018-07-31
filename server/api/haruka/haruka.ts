@@ -34,10 +34,10 @@ export const fetchAction = async (request: any, response: any) => {
     const path = getPath(year, month);
     // read cache
     const cache = await readFile(path).catch(async () => {
-        await fetchReleaseItems(year, month)
-        return await readFile(path)
+        await fetchReleaseItems(year, month);
+        return await readFile(path);
     });
-    return response.json(JSON.parse(cache))
+    return response.json(cache);
 };
 
 export const scraping = async () => {

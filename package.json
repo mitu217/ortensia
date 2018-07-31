@@ -22,8 +22,8 @@
   },
   "homepage": "https://github.com/Mitu217/ortensia#readme",
   "dependencies": {
+    "@nuxtjs/axios": "^5.3.1",
     "@types/axios": "^0.14.0",
-    "axios": "^0.18.0",
     "cheerio-httpcli": "^0.7.3",
     "cors": "^2.8.4",
     "cron": "^1.3.0",

@@ -27,7 +27,11 @@ module.exports = {
         { src: 'vue-material/dist/vue-material.min.css', lang: 'css' },
     ],
     plugins: [
+        { src: '~/plugins/axios'},
         { src: '~/plugins/vue-material' }
+    ],
+    modules: [
+        '@nuxtjs/axios',
     ],
     /*
     ** Add axios globally
