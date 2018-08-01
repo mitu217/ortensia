@@ -7,12 +7,10 @@ export default class NuxtServer {
     private static _instance: NuxtServer;
 
     private _app: any;
-    private _host: string;
     private _port: number|string;
 
     protected constructor() {
         this._app = express();
-        this._host = process.env.HOST || '127.0.0.1';
         this._port = process.env.PORT || 3000;
     }
 

@@ -8,7 +8,7 @@ export default function ({ $axios, redirect }) {
     if (code === 400) {
       redirect('/400')
     } else {
-      console.log(err)
+      console.error(err)
     }
   })
 }
