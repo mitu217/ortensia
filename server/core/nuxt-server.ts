@@ -42,7 +42,9 @@ export default class NuxtServer {
 
         this._app.use(nuxt.render);
 
-        this._app.listen(this._port);
+        this._app.listen(this._port, () => {
+            console.log(`Listening on port ${this._port}`)
+        });
         return;
     }
 }

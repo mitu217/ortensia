@@ -9,7 +9,10 @@
     "start": "./node_modules/.bin/cross-env NODE_ENV=production node build/index.js",
     "precommit": "npm run lint",
     "lint": "./node_modules/.bin/eslint --ext .js,.vue --ignore-path .gitignore .",
-    "test": "npm run build && mocha --timeout 10000 --reporter spec"
+    "test": "npm run build && mocha --timeout 10000 --reporter spec",
+    "datastore-emulate": "gcloud beta emulators datastore start --no-store-on-disk",
+    "datastore-env-init": "gcloud beta emulators datastore env-init",
+    "datastore-env-unset": "gcloud beta emulators datastore env-unset"
   },
   "repository": {
     "type": "git",
@@ -22,6 +25,7 @@
   },
   "homepage": "https://github.com/Mitu217/ortensia#readme",
   "dependencies": {
+    "@google-cloud/datastore": "^1.4.1",
     "@nuxtjs/axios": "^5.3.1",
     "@types/axios": "^0.14.0",
     "cheerio": "^1.0.0-rc.2",

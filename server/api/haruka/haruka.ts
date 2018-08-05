@@ -2,10 +2,9 @@ import * as cheerio from 'cheerio';
 import * as fetch from 'node-fetch';
 import * as querystring from 'querystring';
 import { CronJob } from 'cron';
-import * as fs from 'fs';
-import { dirname as getDirName } from 'path';
-import * as mkdirp from 'mkdirp';
-import * as util from 'util';
+import * as Datastore from '@google-cloud/datastore';
+
+const datastore = Datastore();
 
 // -------------------
 // animate online shop
@@ -18,8 +17,8 @@ const ANIMATE_CATEGORY_FIGURE = 5;
 const ANIMATE_CATEGORY_GAME   = 6;
 const ANIMATE_CATEGORY_TICKET = 7;
 
-const animateOnlineShopUrl    = 'https://www.animate-onlineshop.jp/calendar';
-const countPerPage   = 200;
+const animateOnlineShopUrl = 'https://www.animate-onlineshop.jp/calendar';
+const animateOnlineShopCountPerPage         = 200;
 
 // setup cron job
 const job = new CronJob('0 */5 * * * *', () => {
@@ -31,22 +30,9 @@ export const fetchAction = async (req: any, res: any) => {
     if (!req.params.year || !req.params.month) {
         return res.sendStatus(404)
     }
-    const year = req.params.year;
-    const month = req.params.month;
-    const path = getPath(year, month);
     // read cache
-    const cache = await readFile(path).catch(async (err) => {
-        await fetchReleaseItems(year, month);
-        /*
-        const data = await readFile(path).catch(err => {
-            console.log(err);
-            return "[]";
-        });
-        return data;
-        */
-       return "[]";
-    });
-    return res.json(JSON.parse(cache));
+    const cache = await readCache(req.params.year, req.params.month);
+    return res.json(cache);
 };
 
 export const scraping = async () => {
@@ -66,9 +52,8 @@ export const scraping = async () => {
 
 const fetchReleaseItems = async (year: number, month: number) => {
     const releaseItems = await fetchMusicReleaseItems(year, month);
-    const path = getPath(year, month);
-    await writeFile(path, releaseItems).catch(err => {
-        console.log(err);
+    await writeCache(year, month, releaseItems).catch(err => {
+        console.error(err);
     });
 }
 
@@ -91,7 +76,7 @@ const fetchAnimateReleaseItems = async (category: number, year: number, month: n
             "csm": month,
             "cey": year,
             "cem": month,
-            "cl": countPerPage,
+            "cl": animateOnlineShopCountPerPage,
             "pageno": pageNo,
         });
         const res = await fetch(`${animateOnlineShopUrl}?${queries}`);
@@ -166,23 +151,42 @@ const fetchAnimateReleaseItems = async (category: number, year: number, month: n
     return releaseItems;
 }
 
-export const getPath = (year: number, month: number) => {
-    return `cache/${year}_${month}.json`;
+const getChachName = (year: number, month: number) => {
+    return `${year}_${month}.json`;
 }
 
-const readFile = async (path: string) => {
-    let result = "";
-    await util.promisify(fs.readFile)(path, "utf8").then((data) => {
-        result = data;
+const readCache = async (year: number, month: number) => {
+    const cacheName = getChachName(year, month);
+    let cache = await readDatastore(cacheName).catch(err => {
+        console.error(err);
     });
-    return result;
+    // if not exist cache, fetch data
+    if (cache.length == 0) {
+        await fetchReleaseItems(year, month);
+        cache = await readDatastore(cacheName).catch(err => {
+            console.error(err);
+        });
+    }
+    return cache[0].data;
 }
 
-const writeFile = async (path: string, data: any) => {
-    await util.promisify(mkdirp)(getDirName(path)).then((err) => {
-        if (err) throw err;
+const writeCache = async (year: number, month: number, data: any) => {
+    const cacheName = getChachName(year, month);
+    await writeDatastore(cacheName, data);
+}
+
+const readDatastore = async (key: string) => {
+    const query = datastore.createQuery(key).limit(1);
+    return datastore.runQuery(query).then((results) => {
+        return results[0];
     });
-    await util.promisify(fs.writeFile)(path, JSON.stringify(data)).then((err) => {
-        if (err) throw err;
+}
+
+const writeDatastore = async (key: string, data: any) => {
+    datastore.save({
+        key: datastore.key(key),
+        data: {
+            data: data
+        }
     });
 }
