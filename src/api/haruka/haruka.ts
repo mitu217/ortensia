@@ -2,9 +2,7 @@ import * as cheerio from 'cheerio';
 import * as fetch from 'node-fetch';
 import * as querystring from 'querystring';
 import { CronJob } from 'cron';
-import * as Datastore from '@google-cloud/datastore';
-
-const datastore = Datastore();
+import { getChachName, readDatastore, writeDatastore } from './../util';
 
 // -------------------
 // animate online shop
@@ -39,7 +37,7 @@ export const scraping = async () => {
     const date = new Date();
     let year = date.getFullYear();
     let month = date.getMonth() + 1;
-    for(var i=0; i<12; i++) {
+    for(var i=0; i<1; i++) {
         await fetchReleaseItems(year, month);
         // move next month
         month++;
@@ -151,10 +149,6 @@ const fetchAnimateReleaseItems = async (category: number, year: number, month: n
     return releaseItems;
 }
 
-const getChachName = (year: number, month: number) => {
-    return `${year}_${month}.json`;
-}
-
 const readCache = async (year: number, month: number) => {
     const cacheName = getChachName(year, month);
     let cache = await readDatastore(cacheName).catch(err => {
@@ -173,20 +167,4 @@ const readCache = async (year: number, month: number) => {
 const writeCache = async (year: number, month: number, data: any) => {
     const cacheName = getChachName(year, month);
     await writeDatastore(cacheName, data);
-}
-
-const readDatastore = async (key: string) => {
-    const query = datastore.createQuery(key).limit(1);
-    return datastore.runQuery(query).then((results) => {
-        return results[0];
-    });
-}
-
-const writeDatastore = async (key: string, data: any) => {
-    datastore.save({
-        key: datastore.key(key),
-        data: {
-            data: data
-        }
-    });
 }
