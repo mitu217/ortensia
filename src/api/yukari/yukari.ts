@@ -6,32 +6,12 @@ export const exportCalendarAction = async (req: any, res: any) => {
     const date = new Date();
     let year = date.getFullYear();
     let month = date.getMonth() + 1;
-    // read cache
-    const cache = await readCache(year, month);
 
-    let events = "";
-    cache.forEach((c : any) => {
-        const uid = uuid.v4();
-        const name = c.name;
-        // TODO: 中旬などの数字以外対応
-        const startdate = Number(c.date.replace(/-/g, ''));
-        const enddate = startdate + 1;
-        events += `BEGIN:VEVENT
-DTSTART;VALUE=DATE:${startdate}
-DTEND;VALUE=DATE:${enddate}
-DTSTAMP:20180815T143718Z
-UID:${uid}
-CREATED:19000101T120000Z
-DESCRIPTION:${name}
-LAST-MODIFIED:20180815T143634Z
-LOCATION:
-SEQUENCE:1
-STATUS:CONFIRMED
-SUMMARY:${name}
-TRANSP:OPAQUE
-END:VEVENT
-`
-    });
+    const prevMonthEvents = await getEvents(month == 1 ? year - 1 : year, month == 1 ? 12 : month - 1);
+    const currentMonthEvents = await getEvents(year, month);
+    const nextMonthEvents = await getEvents(month == 12 ? year + 1 : year, month == 12 ? 1 : month + 1);
+
+    const events = prevMonthEvents + currentMonthEvents + nextMonthEvents;
     let result =`BEGIN:VCALENDAR
 PRODID:-//ortensia/ ICS//EN
 VERSION:2.0
@@ -43,6 +23,35 @@ ${events}END:VCALENDAR`
     return res.send(result);
 }
 
+export const getEvents = async (year: number, month: number): Promise<string> => {
+    const date = new Date();
+    const dateString = date.toISOString().replace(/[-:.]/g, '');
+    const cache = await readCache(year, month);
+    let events = "";
+    cache.forEach((c : any) => {
+        const uid = uuid.v4();
+        const name = c.name;
+        const startdate = Number(c.date.replace(/-/g, ''));
+        const enddate = startdate + 1;
+        events += `BEGIN:VEVENT
+DTSTART;VALUE=DATE:${startdate}
+DTEND;VALUE=DATE:${enddate}
+DTSTAMP:${dateString}
+UID:${uid}
+CREATED:${dateString}
+DESCRIPTION:${name}
+LAST-MODIFIED:${dateString}
+LOCATION:
+SEQUENCE:1
+STATUS:CONFIRMED
+SUMMARY:${name}
+TRANSP:OPAQUE
+END:VEVENT
+`
+    });
+    return events;
+}
+
 const readCache = async (year: number, month: number): Promise<Object[]> => {
     const cacheName = getChachName(year, month);
     return await readDatastore(cacheName).then(res => {
@@ -51,9 +60,4 @@ const readCache = async (year: number, month: number): Promise<Object[]> => {
         console.error(err);
         return [];
     });
-}
-
-const exportEvent = async (): Promise<string> => {
-
-    return "";
 }
