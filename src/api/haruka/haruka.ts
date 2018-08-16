@@ -2,7 +2,7 @@ import * as cheerio from 'cheerio';
 import * as fetch from 'node-fetch';
 import * as querystring from 'querystring';
 import { CronJob } from 'cron';
-import { getChachName, readDatastore, writeDatastore } from './../util';
+import { readCache, writeCache } from './../util';
 
 // -------------------
 // animate online shop
@@ -18,12 +18,6 @@ const ANIMATE_CATEGORY_TICKET = 7;
 const animateOnlineShopUrl = 'https://www.animate-onlineshop.jp/calendar';
 const animateOnlineShopCountPerPage         = 200;
 
-// setup cron job
-const job = new CronJob('0 */5 * * * *', () => {
-    scraping()
-});
-job.start();
-
 export const fetchAction = async (req: any, res: any) => {
     if (!req.params.year || !req.params.month) {
         return res.sendStatus(404)
@@ -37,7 +31,7 @@ export const scraping = async () => {
     const date = new Date();
     let year = date.getFullYear();
     let month = date.getMonth() + 1;
-    for(var i=0; i<1; i++) {
+    for(var i=0; i<3; i++) { // next 3 monthes
         await fetchReleaseItems(year, month);
         // move next month
         month++;
@@ -50,9 +44,11 @@ export const scraping = async () => {
 
 const fetchReleaseItems = async (year: number, month: number) => {
     const releaseItems = await fetchMusicReleaseItems(year, month);
-    await writeCache(year, month, releaseItems).catch(err => {
-        console.error(err);
-    });
+    if (Object.keys(releaseItems).length) {
+        await writeCache(year, month, releaseItems).catch(err => {
+            console.error(err);
+        });
+    }
 }
 
 const fetchMusicReleaseItems = async (year: number, month: number) => {
@@ -149,22 +145,11 @@ const fetchAnimateReleaseItems = async (category: number, year: number, month: n
     return releaseItems;
 }
 
-const readCache = async (year: number, month: number) => {
-    const cacheName = getChachName(year, month);
-    let cache = await readDatastore(cacheName).catch(err => {
-        console.error(err);
-    });
-    // if not exist cache, fetch data
-    if (cache.length == 0) {
-        await fetchReleaseItems(year, month);
-        cache = await readDatastore(cacheName).catch(err => {
-            console.error(err);
-        });
-    }
-    return cache[0].data;
-}
+// setup cron job
+const job = new CronJob('0 */5 * * * *', () => {
+    scraping()
+});
+job.start();
 
-const writeCache = async (year: number, month: number, data: any) => {
-    const cacheName = getChachName(year, month);
-    await writeDatastore(cacheName, data);
-}
+// fisrt run
+scraping();

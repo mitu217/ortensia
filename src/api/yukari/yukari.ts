@@ -1,4 +1,4 @@
-import { getChachName, readDatastore } from '../util';
+import { readCache } from '../util';
 import * as uuid from 'node-uuid';
 
 export const exportCalendarAction = async (req: any, res: any) => {
@@ -51,14 +51,4 @@ END:VEVENT
         }
     });
     return events;
-}
-
-const readCache = async (year: number, month: number): Promise<Object[]> => {
-    const cacheName = getChachName(year, month);
-    return await readDatastore(cacheName).then(res => {
-        return res[0].data;
-    }).catch(err => {
-        console.error(err);
-        return [];
-    });
 }
