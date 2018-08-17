@@ -1,8 +1,7 @@
 import * as cheerio from 'cheerio';
 import * as fetch from 'node-fetch';
 import * as querystring from 'querystring';
-import { CronJob } from 'cron';
-import { readCache, writeCache } from './../util';
+import { writeCache } from './../util';
 
 // -------------------
 // animate online shop
@@ -19,12 +18,8 @@ const animateOnlineShopUrl = 'https://www.animate-onlineshop.jp/calendar';
 const animateOnlineShopCountPerPage         = 200;
 
 export const fetchAction = async (req: any, res: any) => {
-    if (!req.params.year || !req.params.month) {
-        return res.sendStatus(404)
-    }
-    // read cache
-    const cache = await readCache(req.params.year, req.params.month);
-    return res.json(cache);
+    scraping();
+    return res.send('success');
 };
 
 const scraping = async () => {
@@ -146,12 +141,3 @@ const fetchAnimateReleaseItems = async (category: number, year: number, month: n
 
     return releaseItems;
 }
-
-// setup cron job
-const job = new CronJob('0 */5 * * * *', () => {
-    scraping()
-});
-job.start();
-
-// fisrt run
-scraping();
