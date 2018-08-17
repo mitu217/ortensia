@@ -1,6 +1,6 @@
 # ortensia
 
-## Build Setup
+## Development
 
 ``` bash
 # install dependencies
@@ -9,8 +9,13 @@ $ npm install
 # serve with hot reload at localhost:3000
 $ npm run dev
 
-# build for production and launch server
-$ npm start
+# tests
+$ npm test
 ```
 
-For detailed explanation on how things work, checkout the [Nuxt.js docs](https://github.com/nuxt/nuxt.js).
+## Deploy
+
+```bash
+# deployment cloud functions
+$ npm run deploy
+```

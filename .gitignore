@@ -2,5 +2,5 @@
 
 package-lock.json
 
-build/
+dest/
 node_modules/

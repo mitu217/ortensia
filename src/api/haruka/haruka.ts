@@ -27,12 +27,14 @@ export const fetchAction = async (req: any, res: any) => {
     return res.json(cache);
 };
 
-export const scraping = async () => {
+const scraping = async () => {
     const date = new Date();
     let year = date.getFullYear();
     let month = date.getMonth() + 1;
     for(var i=0; i<3; i++) { // next 3 monthes
-        await fetchReleaseItems(year, month);
+        await fetchReleaseItems(year, month).catch(err => {
+            console.error(err);
+        });
         // move next month
         month++;
         if (month > 12) {

@@ -22,7 +22,7 @@ export const readCache = async (year: number, month: number): Promise<Object[]> 
 export const writeCache = async (year: number, month: number, data: any) => {
     console.info(`write cache: ${year}_${month}`);
     const cacheName = getChachName(year, month);
-    await writeDatastore(cacheName, data);
+    await writeDatastore(cacheName, data).catch(err => console.error(err));
 }
 
 const readDatastore = async (key: string) => {

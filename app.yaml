@@ -1,4 +1,0 @@
-runtime: nodejs8
-threadsafe: true
-env_variables:
-  PORT: 8080

@@ -24,7 +24,7 @@ ${events}END:VCALENDAR`
     return res.send(result);
 }
 
-export const getEvents = async (year: number, month: number, timestamp: string): Promise<string> => {
+const getEvents = async (year: number, month: number, timestamp: string): Promise<string> => {
     const cache = await readCache(year, month);
     let events = "";
     cache.forEach((c : any) => {
