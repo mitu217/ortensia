@@ -1,0 +1,4 @@
+cron:
+    - description: "scraping"
+      url: /hourly
+      schedule: every 1 hours

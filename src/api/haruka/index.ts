@@ -3,7 +3,7 @@ import { Router } from 'express';
 
 const router = Router({mergeParams: true});
 
-/* GET release items */
-router.get('/fetch/:year/:month', fetchAction);
+/* GET fetch release schedules */
+router.get('/', fetchAction);
 
 export default router;

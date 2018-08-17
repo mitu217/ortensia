@@ -7,7 +7,9 @@
     "build": "./node_modules/.bin/tsc",
     "dev": "./node_modules/.bin/ts-node ./src/index.ts",
     "start": "npm run build && ./node_modules/.bin/cross-env NODE_ENV=production node index.js",
-    "deploy": "npm run build && cp package.json ./dest && gcloud beta functions deploy ortensia --runtime nodejs8 --trigger-http --region asia-northeast1 --source=./dest",
+    "deploy": "npm run deploy-function && npm run deploy-cron",
+    "deploy-function": "npm run build && cp package.json ./dest && gcloud beta functions deploy ortensia --runtime nodejs8 --trigger-http --region asia-northeast1 --source=./dest",
+    "deploy-cron": "cd cron && gcloud app deploy && gcloud app deploy cron.yaml",
     "test": "npm run build && mocha --timeout 10000 --reporter spec"
   },
   "repository": {

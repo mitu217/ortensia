@@ -18,8 +18,8 @@ const animateOnlineShopUrl = 'https://www.animate-onlineshop.jp/calendar';
 const animateOnlineShopCountPerPage         = 200;
 
 export const fetchAction = async (req: any, res: any) => {
-    scraping();
-    return res.send('success');
+    await scraping();
+    return res.json({status: '200'});
 };
 
 const scraping = async () => {
