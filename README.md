@@ -8,7 +8,9 @@ management media release calendar
 
 Deploy to CloudFunction and AppEngine
 
-Add another calendar from url! ex) GoogleCalendar, iCalendar...
+Add another calendar from url! 
+
+ex) GoogleCalendar, iCalendar...
 
 ![example2](example2.png)
 
